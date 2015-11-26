@@ -313,3 +313,12 @@ class RequiredModel(models.Model):
 
 class DecoratedModel(models.Model):
     title = models.CharField(ugettext_lazy('title'), max_length=255)
+
+
+# ######### Original field preservation testing
+
+class TestPreservationModel(models.Model):
+    title = models.CharField(ugettext_lazy('title'), max_length=255)
+    text = models.TextField(blank=True, null=True)
+    url = models.URLField(blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)

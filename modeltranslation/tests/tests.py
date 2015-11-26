@@ -42,7 +42,7 @@ models = translation = None
 request = None
 
 # How many models are registered for tests.
-TEST_MODELS = 29
+TEST_MODELS = 30
 
 
 class reload_override_settings(override_settings):
@@ -1935,6 +1935,36 @@ class UpdateCommandTest(ModeltranslationTestBase):
         self.assertEqual('initial', obj1.title_de)
         self.assertEqual('already', obj2.title_de)
 
+    def assertOriginal(self, pk):
+        obj = models.TestPreservationModel.objects.filter(pk=pk).raw_values()[0]
+        self.assertEqual('initial', obj['title'])
+
+    def test_original_field_preservation(self):
+        """
+        Test if operations on model does not mess with original field value -
+        that's it: original field value is preserved in database and can be used for
+        eg. update_translation_fields command.
+        """
+        pk = models.TestPreservationModel.objects.create().pk
+        models.TestPreservationModel.objects.all().rewrite(False).update(title='initial')
+
+        self.assertOriginal(pk)
+
+        obj = models.TestPreservationModel.objects.get(pk=pk)
+        obj.save()
+        self.assertOriginal(pk)
+
+        obj.title_de = 'a'
+        obj.title_en = 'b'
+        obj.save()
+        self.assertOriginal(pk)
+
+        obj.title = 'c'
+        obj.save()
+        self.assertOriginal(pk)
+
+        models.TestPreservationModel.objects.update(title='d')
+        self.assertOriginal(pk)
 
 class TranslationAdminTest(ModeltranslationTestBase):
     def setUp(self):

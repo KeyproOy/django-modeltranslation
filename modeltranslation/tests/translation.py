@@ -8,7 +8,7 @@ from modeltranslation.tests.models import (
     RichText, RichTextPage, MultitableModelA, MultitableModelB, MultitableModelC, ManagerTestModel,
     CustomManagerTestModel, CustomManager2TestModel, GroupFieldsetsModel, NameModel,
     ThirdPartyRegisteredModel, ProxyTestModel, UniqueNullableModel, OneToOneFieldModel,
-    RequiredModel, DecoratedModel)
+    RequiredModel, DecoratedModel, TestPreservationModel)
 
 
 class TestTranslationOptions(TranslationOptions):
@@ -203,3 +203,12 @@ translator.register(RequiredModel, RequiredTranslationOptions)
 @register(DecoratedModel)
 class DecoratedTranslationOptions(TranslationOptions):
     fields = ('title',)
+
+
+# ######### Original field preservation testing
+
+class TestTranslationOptions(TranslationOptions):
+    fields = ('title', 'text', 'url', 'email',)
+    empty_values = ''
+    preserve_original = True
+translator.register(TestPreservationModel, TestTranslationOptions)
