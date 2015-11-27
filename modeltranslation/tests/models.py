@@ -319,6 +319,7 @@ class DecoratedModel(models.Model):
 
 class TestPreservationModel(models.Model):
     title = models.CharField(ugettext_lazy('title'), max_length=255)
+    nullable_title = models.CharField(ugettext_lazy('title'), max_length=255, null=True, blank=True)
     text = models.TextField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     email = models.EmailField(blank=True, null=True)

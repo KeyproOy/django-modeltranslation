@@ -208,7 +208,7 @@ class DecoratedTranslationOptions(TranslationOptions):
 # ######### Original field preservation testing
 
 class TestTranslationOptions(TranslationOptions):
-    fields = ('title', 'text', 'url', 'email',)
+    fields = ('title', 'nullable_title', 'text', 'url', 'email',)
     empty_values = ''
     preserve_original = True
 translator.register(TestPreservationModel, TestTranslationOptions)

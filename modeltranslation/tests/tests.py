@@ -1935,9 +1935,9 @@ class UpdateCommandTest(ModeltranslationTestBase):
         self.assertEqual('initial', obj1.title_de)
         self.assertEqual('already', obj2.title_de)
 
-    def assertOriginal(self, pk):
+    def assertOriginal(self, pk, field, value=None):
         obj = models.TestPreservationModel.objects.filter(pk=pk).raw_values()[0]
-        self.assertEqual('initial', obj['title'])
+        self.assertEqual(value, obj[field])
 
     def test_original_field_preservation(self):
         """
@@ -1947,24 +1947,43 @@ class UpdateCommandTest(ModeltranslationTestBase):
         """
         pk = models.TestPreservationModel.objects.create().pk
         models.TestPreservationModel.objects.all().rewrite(False).update(title='initial')
-
-        self.assertOriginal(pk)
+        self.assertOriginal(pk, 'title', 'initial')
 
         obj = models.TestPreservationModel.objects.get(pk=pk)
         obj.save()
-        self.assertOriginal(pk)
+        self.assertOriginal(pk, 'title', 'initial')
 
         obj.title_de = 'a'
         obj.title_en = 'b'
         obj.save()
-        self.assertOriginal(pk)
+        self.assertOriginal(pk, 'title', 'initial')
 
         obj.title = 'c'
         obj.save()
-        self.assertOriginal(pk)
+        self.assertOriginal(pk, 'title', 'initial')
 
         models.TestPreservationModel.objects.update(title='d')
-        self.assertOriginal(pk)
+        self.assertOriginal(pk, 'title', 'initial')
+
+    def test_original_field_preservation_nullable(self):
+        """
+        Test if operations on model does not mess with original NULL field value -
+        that's it: original field value is preserved in database and can be used for
+        eg. update_translation_fields command.
+        """
+
+        pk = models.TestPreservationModel.objects.create().pk
+        obj = models.TestPreservationModel.objects.get(pk=pk)
+        obj.nullable_title_de = 'a'
+        obj.nullable_title_en = 'b'
+        obj.save()
+        self.assertOriginal(pk, 'nullable_title', None)
+
+        obj = models.TestPreservationModel.objects.get(pk=pk)
+        obj.nullable_title = 'c'
+        obj.save()
+        self.assertOriginal(pk, 'nullable_title', None)
+
 
 class TranslationAdminTest(ModeltranslationTestBase):
     def setUp(self):
