@@ -472,10 +472,12 @@ class FallbackValuesListQuerySet(FallbackValuesQuerySet):
 
 
 def get_queryset(obj):
-    if hasattr(obj, 'get_queryset'):
-        return obj.get_queryset()
-    else:  # Django 1.4 / 1.5 compat
+    if hasattr(obj, 'get_query_set'):
+        # Django 1.4 / 1.5 compat
         return obj.get_query_set()
+    else:
+        # Django 1.6+
+        return obj.get_queryset()
 
 
 def multilingual_queryset_factory(old_cls, instantiate=True):
