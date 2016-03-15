@@ -975,6 +975,20 @@ class ForeignKeyFieldsTest(ModeltranslationTestBase):
         self.assertEqual(manager.filter(test_fks__title='f_title_de').count(), 0)
         self.assertEqual(manager.filter(test_fks__title_de='f_title_de').count(), 1)
 
+    def test_related_values_list_translation(self):
+        test_inst1 = models.TestModel(title_en='title1_en', title_de='title1_de')
+        test_inst1.save()
+        inst = self.model()
+
+        inst.test = test_inst1
+        inst.save()
+
+        trans_real.activate("en")
+        self.assertEqual(list(self.model.objects.values_list('test__title', flat=True)), [u'title1_en'])
+
+        trans_real.activate("de")
+        self.assertEqual(list(self.model.objects.values_list('test__title', flat=True)), [u'title1_de'])
+
     def test_indonesian(self):
         field = models.ForeignKeyModel._meta.get_field('test')
         self.assertNotEqual(field.attname, build_localized_fieldname(field.name, 'id'))
